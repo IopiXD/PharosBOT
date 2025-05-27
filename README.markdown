@@ -30,7 +30,7 @@ https://testnet.pharosnetwork.xyz/experience
 
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/IopiXD/pharos-daily-bot.git
+   git clone https://github.com/IopiXD/PharoBOT.git
    cd PharoBOT
    ```
 
