@@ -7,7 +7,6 @@ from eth_account import Account
 from eth_account.messages import encode_defunct
 from colorama import init, Fore, Style
 import pytz
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import builtins
 from threading import Lock
