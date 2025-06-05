@@ -34,7 +34,7 @@ WPHRS_CONTRACT_ADDRESS = Web3.to_checksum_address("0x76aaada469d23216be5f7c596fa
 USDC_TOKEN = Web3.to_checksum_address("0xad902cf99c2de2f1ba5ec4d642fd7e49cae9ee37")
 USDT_TOKEN = Web3.to_checksum_address("0xEd59De2D7ad9C043442e381231eE3646FC3C2939")
 ROUTER_ADDRESS = Web3.to_checksum_address("0x1a4de519154ae51200b0ad7c90f7fac75547888a")
-NONFUNGIBLE_POSITION_MANAGER_ADDRESS = Web3.to_checksum_address("0xF8a1D4FF0f9b9Af7CE58E1fc1833688F3BFd6115")
+NONFUNGIBLE_POSITION_MANAGER_ADDRESS = Web3.to_checksum_address("0xF8a1D4FF0f9b9Af7CE58E1FC1833688F3BFd6115")
 QUOTER_ADDRESS = Web3.to_checksum_address("0x00f2f47d1ed593Cf0AF0074173E9DF95afb0206C")
 FEE = 500
 DEADLINE_MINUTES = 10
@@ -380,6 +380,7 @@ def send_native_tx(w3, account, to_address, amount_eth):
         except ValueError as e:
             if 'nonce too low' in str(e) or 'TX_REPLAY_ATTACK' in str(e):
                 print(f"    {Fore.YELLOW}⚠️ Attempt {attempt}: Nonce conflict: {e}{Style.RESET_ALL}")
+                nonce_cache.pop(wallet_address, None)  # Clear cached nonce
                 time.sleep(BACKOFF_FACTOR ** attempt)
                 continue
             print(f"    {Fore.RED}❌ Attempt {attempt}: TX error: {e}{Style.RESET_ALL}")
@@ -550,6 +551,7 @@ def swap_native_to_token(w3, token_address, amount_in_eth, token_symbol, token_c
         except Exception as e:
             if 'TX_REPLAY_ATTACK' in str(e) or 'nonce too low' in str(e):
                 print(f"{Fore.YELLOW}⚠️ Attempt {attempt}: Nonce conflict: {e}{Style.RESET_ALL}")
+                nonce_cache.pop(wallet_address, None)  # Clear cached nonce
                 time.sleep(BACKOFF_FACTOR ** attempt)
                 continue
             print(f"    {Fore.RED}❌ Attempt {attempt}: Swap to {token_symbol} failed: {e}{Style.RESET_ALL}")
@@ -585,6 +587,7 @@ def swap_token_to_native(w3, token_address, token_contract, token_decimals, toke
         except Exception as e:
             if 'TX_REPLAY_ATTACK' in str(e) or 'nonce too low' in str(e):
                 print(f"    {Fore.YELLOW}⚠️ Attempt {attempt}: Nonce conflict in approval: {e}{Style.RESET_ALL}")
+                nonce_cache.pop(wallet_address, None)  # Clear cached nonce
                 time.sleep(BACKOFF_FACTOR ** attempt)
                 continue
             print(f"    {Fore.RED}❌ Attempt {attempt}: {token_symbol} Approval failed: {e}{Style.RESET_ALL}")
@@ -604,6 +607,7 @@ def swap_token_to_native(w3, token_address, token_contract, token_decimals, toke
     router = w3.eth.contract(address=ROUTER_ADDRESS, abi=ROUTER_ABI)
     try:
         estimated = router.functions.exactInputSingle(params).call({"from": wallet_address})
+        params["amountOutMinimum"] = int(estimated * 0.95)  # 5% slippage protection
         print(f"    {Fore.YELLOW}📊 Estimated: {amount_in_readable:.4f} {token_symbol} → ~{round(w3.from_wei(estimated, 'ether'), 4)} PHRS{Style.RESET_ALL}")
     except Exception as e:
         print(f"    {Fore.RED}❌ Estimation failed: {e}{Style.RESET_ALL}")
@@ -637,6 +641,7 @@ def swap_token_to_native(w3, token_address, token_contract, token_decimals, toke
         except Exception as e:
             if 'TX_REPLAY_ATTACK' in str(e) or 'nonce too low' in str(e):
                 print(f"    {Fore.YELLOW}⚠️ Attempt {attempt}: Nonce conflict: {e}{Style.RESET_ALL}")
+                nonce_cache.pop(wallet_address, None)  # Clear cached nonce
                 time.sleep(BACKOFF_FACTOR ** attempt)
                 continue
             print(f"    {Fore.RED}❌ Attempt {attempt}: Swap {token_symbol} to PHRS failed: {e}{Style.RESET_ALL}")
@@ -685,13 +690,14 @@ def add_liquidity_native_erc20(w3, amount_native_in_eth, target_token_contract, 
             signed_approve_tx = w3.eth.account.sign_transaction(approve_tx, private_key)
             approve_tx_hash = w3.eth.send_raw_transaction(signed_approve_tx.raw_transaction)
             print(f"    {Fore.GREEN}🚀 Approval TX Sent: {w3.to_hex(approve_tx_hash)}{Style.RESET_ALL}")
-            w3.eth.wait_for_transaction_receipt(approve_tx_hash, timeout=300)
+            w3.eth.wait_for_transaction_receipt(approve_tx_hash, timeout=600)  # Increased timeout
             print(f"    {Fore.GREEN}✅ Approval confirmed{Style.RESET_ALL}")
             increment_nonce(wallet_address)
             break
         except Exception as e:
             if 'TX_REPLAY_ATTACK' in str(e) or 'nonce too low' in str(e):
                 print(f"    {Fore.YELLOW}⚠️ Attempt {attempt}: Nonce conflict in approval: {e}{Style.RESET_ALL}")
+                nonce_cache.pop(wallet_address, None)  # Clear cached nonce
                 time.sleep(BACKOFF_FACTOR ** attempt)
                 continue
             print(f"    {Fore.RED}❌ Attempt {attempt}: Approval failed: {e}{Style.RESET_ALL}")
@@ -743,7 +749,7 @@ def add_liquidity_native_erc20(w3, amount_native_in_eth, target_token_contract, 
             multicall_tx_hash = w3.eth.send_raw_transaction(signed_multicall_tx.raw_transaction)
             tx_hash_hex = w3.to_hex(multicall_tx_hash)
             print(f"    {Fore.GREEN}🚀 Add Liquidity TX Sent: {tx_hash_hex}{Style.RESET_ALL}")
-            receipt = w3.eth.wait_for_transaction_receipt(multicall_tx_hash, timeout=300)
+            receipt = w3.eth.wait_for_transaction_receipt(multicall_tx_hash, timeout=600)  # Increased timeout
             if receipt['status'] == 1:
                 print(f"    {Fore.GREEN}✅ Add Liquidity for {target_token_symbol} successful{Style.RESET_ALL}")
                 increment_nonce(wallet_address)
@@ -753,6 +759,7 @@ def add_liquidity_native_erc20(w3, amount_native_in_eth, target_token_contract, 
         except Exception as e:
             if 'TX_REPLAY_ATTACK' in str(e) or 'nonce too low' in str(e):
                 print(f"    {Fore.YELLOW}⚠️ Attempt {attempt}: Nonce conflict: {e}{Style.RESET_ALL}")
+                nonce_cache.pop(wallet_address, None)  # Clear cached nonce
                 time.sleep(BACKOFF_FACTOR ** attempt)
                 continue
             print(f"    {Fore.RED}❌ Attempt {attempt}: Add Liquidity for {target_token_symbol} failed: {e}{Style.RESET_ALL}")
@@ -839,79 +846,91 @@ def process_wallet(wallet_index, pk, total_wallets, w3):
 
         for i in range(50):
             print(f"{Fore.WHITE}═══ Iteration {i+1}/50 🔄 ═══{Style.RESET_ALL}")
-            print(f"{Fore.CYAN}💰 Initial Balances{Style.RESET_ALL}")
-            initial_eth_balance_wei = print_eth_balance(w3, wallet_address)
-            _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
-            _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
-            print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
+            try:
+                print(f"{Fore.CYAN}💰 Initial Balances{Style.RESET_ALL}")
+                initial_eth_balance_wei = print_eth_balance(w3, wallet_address)
+                _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
+                _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
+                print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
 
-            print(f"{Fore.CYAN}🔄 Performing Swaps{Style.RESET_ALL}")
-            swap_amount_eth = round(random.uniform(0.001, 0.005), 4)
-            tx_hash_usdc, usdc_balance = swap_native_to_token(
-                w3, USDC_TOKEN, swap_amount_eth, "USDC", usdc_contract, usdc_decimals,
-                wallet_address, pk
-            )
-            time.sleep(10)
-            swap_amount_eth = round(random.uniform(0.001, 0.005), 4)
-            tx_hash_usdt, usdt_balance = swap_native_to_token(
-                w3, USDT_TOKEN, swap_amount_eth, "USDT", usdt_contract, usdt_decimals,
-                wallet_address, pk
-            )
+                if initial_eth_balance_wei < w3.to_wei(0.001, 'ether'):
+                    print(f"{Fore.YELLOW}⚠️ Insufficient PHRS balance, skipping iteration{Style.RESET_ALL}")
+                    continue
 
-            print(f"{Fore.CYAN}💰 Balances After Swaps{Style.RESET_ALL}")
-            current_eth_balance_wei = print_eth_balance(w3, wallet_address)
-            _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
-            _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
-            print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
-
-            print(f"{Fore.CYAN}💧 Adding Liquidity{Style.RESET_ALL}")
-            amount_to_add_eth = round(random.uniform(0.0001, 0.0005), 4)
-            if tx_hash_usdc:
-                add_liquidity_native_erc20(
-                    w3, amount_to_add_eth, usdc_contract, USDC_TOKEN, usdc_decimals, "USDC",
-                    pool_fee_liquidity, tick_lower, tick_upper, wallet_address, pk
+                print(f"{Fore.CYAN}🔄 Performing Swaps{Style.RESET_ALL}")
+                swap_amount_eth = round(random.uniform(0.001, 0.005), 4)
+                tx_hash_usdc, usdc_balance = swap_native_to_token(
+                    w3, USDC_TOKEN, swap_amount_eth, "USDC", usdc_contract, usdc_decimals,
+                    wallet_address, pk
                 )
-            else:
-                print(f"{Fore.YELLOW}⚠️ Skipping USDC liquidity due to failed swap{Style.RESET_ALL}")
-            time.sleep(10)
-            amount_to_add_eth = round(random.uniform(0.0001, 0.0005), 4)
-            if tx_hash_usdt:
-                add_liquidity_native_erc20(
-                    w3, amount_to_add_eth, usdt_contract, USDT_TOKEN, usdt_decimals, "USDT",
-                    pool_fee_liquidity, tick_lower, tick_upper, wallet_address, pk
+                time.sleep(10)
+                swap_amount_eth = round(random.uniform(0.001, 0.005), 4)
+                tx_hash_usdt, usdt_balance = swap_native_to_token(
+                    w3, USDT_TOKEN, swap_amount_eth, "USDT", usdt_contract, usdt_decimals,
+                    wallet_address, pk
                 )
-            else:
-                print(f"{Fore.YELLOW}⚠️ Skipping USDT liquidity due to failed swap{Style.RESET_ALL}")
 
-            print(f"{Fore.CYAN}💰 Balances After Liquidity{Style.RESET_ALL}")
-            current_eth_balance_wei = print_eth_balance(w3, wallet_address)
-            _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
-            _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
-            print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}💰 Balances After Swaps{Style.RESET_ALL}")
+                current_eth_balance_wei = print_eth_balance(w3, wallet_address)
+                _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
+                _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
+                print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
 
-            print(f"{Fore.CYAN}🔄 Swapping Back to PHRS{Style.RESET_ALL}")
-            swap_back_usdc = swap_token_to_native(
-                w3, USDC_TOKEN, usdc_contract, usdc_decimals, "USDC", wallet_address, pk
-            )
-            time.sleep(10)
-            swap_back_usdt = swap_token_to_native(
-                w3, USDT_TOKEN, usdt_contract, usdt_decimals, "USDT", wallet_address, pk
-            )
+                print(f"{Fore.CYAN}💧 Adding Liquidity{Style.RESET_ALL}")
+                amount_to_add_eth = round(random.uniform(0.0001, 0.0005), 4)
+                if initial_eth_balance_wei < w3.to_wei(amount_to_add_eth, 'ether'):
+                    print(f"{Fore.YELLOW}⚠️ Insufficient PHRS for liquidity, skipping USDC liquidity{Style.RESET_ALL}")
+                elif tx_hash_usdc:
+                    add_liquidity_native_erc20(
+                        w3, amount_to_add_eth, usdc_contract, USDC_TOKEN, usdc_decimals, "USDC",
+                        pool_fee_liquidity, tick_lower, tick_upper, wallet_address, pk
+                    )
+                else:
+                    print(f"{Fore.YELLOW}⚠️ Skipping USDC liquidity due to failed swap{Style.RESET_ALL}")
+                time.sleep(10)
+                amount_to_add_eth = round(random.uniform(0.0001, 0.0005), 4)
+                if initial_eth_balance_wei < w3.to_wei(amount_to_add_eth, 'ether'):
+                    print(f"{Fore.YELLOW}⚠️ Insufficient PHRS for liquidity, skipping USDT liquidity{Style.RESET_ALL}")
+                elif tx_hash_usdt:
+                    add_liquidity_native_erc20(
+                        w3, amount_to_add_eth, usdt_contract, USDT_TOKEN, usdt_decimals, "USDT",
+                        pool_fee_liquidity, tick_lower, tick_upper, wallet_address, pk
+                    )
+                else:
+                    print(f"{Fore.YELLOW}⚠️ Skipping USDT liquidity due to failed swap{Style.RESET_ALL}")
 
-            print(f"{Fore.CYAN}💰 Final Balances{Style.RESET_ALL}")
-            print_eth_balance(w3, wallet_address)
-            _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
-            _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
-            print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
-            print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
+                print(f"{Fore.CYAN}💰 Balances After Liquidity{Style.RESET_ALL}")
+                current_eth_balance_wei = print_eth_balance(w3, wallet_address)
+                _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
+                _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
+                print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
 
-            wait_time = random.uniform(3, 7)
-            print(f"{Fore.YELLOW}⏳ Waiting {wait_time:.2f}s before next iteration...{Style.RESET_ALL}")
-            time.sleep(wait_time)
+                print(f"{Fore.CYAN}🔄 Swapping Back to PHRS{Style.RESET_ALL}")
+                swap_back_usdc = swap_token_to_native(
+                    w3, USDC_TOKEN, usdc_contract, usdc_decimals, "USDC", wallet_address, pk
+                )
+                time.sleep(10)
+                swap_back_usdt = swap_token_to_native(
+                    w3, USDT_TOKEN, usdt_contract, usdt_decimals, "USDT", wallet_address, pk
+                )
 
+                print(f"{Fore.CYAN}💰 Final Balances{Style.RESET_ALL}")
+                print_eth_balance(w3, wallet_address)
+                _, usdc_balance = get_token_balance(w3, usdc_contract, usdc_decimals, wallet_address)
+                _, usdt_balance = get_token_balance(w3, usdt_contract, usdt_decimals, wallet_address)
+                print(f"{Fore.YELLOW}   💰 USDC: {usdc_balance:.4f}{Style.RESET_ALL}")
+                print(f"{Fore.YELLOW}   💰 USDT: {usdt_balance:.4f}{Style.RESET_ALL}")
+
+                wait_time = random.uniform(3, 7)
+                print(f"{Fore.YELLOW}⏳ Waiting {wait_time:.2f}s before next iteration...{Style.RESET_ALL}")
+                time.sleep(wait_time)
+            except Exception as e:
+                print(f"{Fore.RED}❌ Iteration {i+1} failed: {e}{Style.RESET_ALL}")
+                time.sleep(5)  # Brief pause before retrying
+                continue
     except Exception as e:
         print(f"{Fore.RED}❌ Wallet error: {e}{Style.RESET_ALL}")
 
@@ -921,6 +940,12 @@ def main():
     total_wallets = len(private_keys)
     print(f"{Fore.WHITE}🏦 Total Wallets: {total_wallets}{Style.RESET_ALL}")
     w3 = Web3(Web3.HTTPProvider(RPC_URL))
+    try:
+        w3.eth.get_block('latest')  
+        print(f"{Fore.GREEN}✅ Network connection established{Style.RESET_ALL}")
+    except Exception as e:
+        print(f"{Fore.RED}❌ Network error: {e}{Style.RESET_ALL}")
+        return
     for wallet_index, pk in enumerate(private_keys, start=1):
         process_wallet(wallet_index, pk, total_wallets, w3)
 
