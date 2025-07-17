@@ -76,7 +76,7 @@ cd PharosBOT
 ### Step 3: Install Dependencies
 With the virtual environment activated, install the required Python packages:
 ```bash
-pip install requests eth_account colorama pytz
+pip install -r requirements.txt
 ```
 
 ### Step 4: Prepare Input Files
