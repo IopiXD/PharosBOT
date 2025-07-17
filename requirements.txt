@@ -1,0 +1,8 @@
+web3
+requests
+eth-account
+colorama
+pytz
+faker
+websocket-client
+supabase

@@ -1,0 +1,481 @@
+{
+  "SWAP_ROUTER_ABI": [],
+  "LIQUIDITY_ROUTER_ABI": [
+    {
+      "inputs": [
+        { "internalType": "address", "name": "poolManager", "type": "address" },
+        { "internalType": "uint256", "name": "amountUSDT", "type": "uint256" },
+        { "internalType": "uint256", "name": "amountWPHRS", "type": "uint256" },
+        { "internalType": "uint256", "name": "amountUSDTMin", "type": "uint256" },
+        { "internalType": "uint256", "name": "amountWPHRSMin", "type": "uint256" },
+        { "internalType": "uint8", "name": "flag", "type": "uint8" },
+        { "internalType": "uint256", "name": "deadline", "type": "uint256" }
+      ],
+      "name": "addDVMLiquidity",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "ERC20_ABI": [
+    {
+      "inputs": [
+        { "internalType": "address", "name": "owner", "type": "address" },
+        { "internalType": "address", "name": "spender", "type": "address" }
+      ],
+      "name": "allowance",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "spender", "type": "address" },
+        { "internalType": "uint256", "name": "amount", "type": "uint256" }
+      ],
+      "name": "approve",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+      "name": "balanceOf",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "decimals",
+      "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "symbol",
+      "outputs": [{ "internalType": "string", "name": "", "type": "string" }],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "WPHRS_ABI": [
+    {
+      "inputs": [],
+      "name": "deposit",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "ROUTER_ABI": [
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "deadline", "type": "uint256"},
+        {"internalType": "bytes[]", "name": "data", "type": "bytes[]"}
+      ],
+      "name": "multicall",
+      "outputs": [{"internalType": "bytes[]", "name": "results", "type": "bytes[]"}],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {"internalType": "address", "name": "tokenIn", "type": "address"},
+            {"internalType": "address", "name": "tokenOut", "type": "address"},
+            {"internalType": "uint24", "name": "fee", "type": "uint24"},
+            {"internalType": "address", "name": "recipient", "type": "address"},
+            {"internalType": "uint256", "name": "amountIn", "type": "uint256"},
+            {"internalType": "uint256", "name": "amountOutMinimum", "type": "uint256"},
+            {"internalType": "uint160", "name": "sqrtPriceLimitX96", "type": "uint160"}
+          ],
+          "internalType": "struct ISwapRouter.ExactInputSingleParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "exactInputSingle",
+      "outputs": [{"internalType": "uint256", "name": "amountOut", "type": "uint256"}],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "amountMinimum", "type": "uint256"},
+        {"internalType": "address", "name": "recipient", "type": "address"}
+      ],
+      "name": "unwrapWETH9",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "NONFUNGIBLE_PM_ABI": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {"internalType": "address", "name": "token0", "type": "address"},
+            {"internalType": "address", "name": "token1", "type": "address"},
+            {"internalType": "uint24", "name": "fee", "type": "uint24"},
+            {"internalType": "int24", "name": "tickLower", "type": "int24"},
+            {"internalType": "int24", "name": "tickUpper", "type": "int24"},
+            {"internalType": "uint256", "name": "amount0Desired", "type": "uint256"},
+            {"internalType": "uint256", "name": "amount1Desired", "type": "uint256"},
+            {"internalType": "uint256", "name": "amount0Min", "type": "uint256"},
+            {"internalType": "uint256", "name": "amount1Min", "type": "uint256"},
+            {"internalType": "address", "name": "recipient", "type": "address"},
+            {"internalType": "uint256", "name": "deadline", "type": "uint256"}
+          ],
+          "internalType": "struct INonfungiblePositionManager.MintParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {"internalType": "uint256", "name": "tokenId", "type": "uint256"},
+        {"internalType": "uint128", "name": "liquidity", "type": "uint128"},
+        {"internalType": "uint256", "name": "amount0", "type": "uint256"},
+        {"internalType": "uint256", "name": "amount1", "type": "uint256"}
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "bytes[]", "name": "data", "type": "bytes[]"}
+      ],
+      "name": "multicall",
+      "outputs": [
+        {"internalType": "bytes[]", "name": "results", "type": "bytes[]"}
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "refundETH",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "QUOTER_ABI": [
+    {
+      "inputs": [
+        {
+          "components": [
+            {"internalType": "address", "name": "tokenIn", "type": "address"},
+            {"internalType": "address", "name": "tokenOut", "type": "address"},
+            {"internalType": "uint256", "name": "amountIn", "type": "uint256"},
+            {"internalType": "uint24", "name": "fee", "type": "uint24"},
+            {"internalType": "uint160", "name": "sqrtPriceLimitX96", "type": "uint160"}
+          ],
+          "internalType": "struct IQuoterV2.QuoteExactInputSingleParams",
+          "name": "params",
+          "type": "tuple"
+        }
+      ],
+      "name": "quoteExactInputSingle",
+      "outputs": [
+        {"internalType": "uint256", "name": "amountOut", "type": "uint256"},
+        {"internalType": "uint160", "name": "sqrtPriceX96After", "type": "uint160"},
+        {"internalType": "uint32", "name": "initializedTicksCrossed", "type": "uint32"},
+        {"internalType": "uint256", "name": "gasEstimate", "type": "uint256"}
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "MINT_ABI": [
+    {
+      "inputs": [
+        {"internalType": "address", "name": "token", "type": "address"},
+        {"internalType": "address", "name": "to", "type": "address"},
+        {"internalType": "uint256", "name": "amount", "type": "uint256"}
+      ],
+      "name": "mint",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "POOL_ABI": [
+    {
+      "inputs": [
+        {"internalType": "address", "name": "asset", "type": "address"},
+        {"internalType": "uint256", "name": "amount", "type": "uint256"},
+        {"internalType": "address", "name": "onBehalfOf", "type": "address"},
+        {"internalType": "uint16", "name": "referralCode", "type": "uint16"}
+      ],
+      "name": "supply",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "address", "name": "asset", "type": "address"},
+        {"internalType": "uint256", "name": "amount", "type": "uint256"},
+        {"internalType": "address", "name": "to", "type": "address"}
+      ],
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "address", "name": "asset", "type": "address"},
+        {"internalType": "uint256", "name": "amount", "type": "uint256"},
+        {"internalType": "uint256", "name": "interestRateMode", "type": "uint256"},
+        {"internalType": "uint16", "name": "referralCode", "type": "uint16"},
+        {"internalType": "address", "name": "onBehalfOf", "type": "address"}
+      ],
+      "name": "borrow",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "POOL_DATA_PROVIDER_ABI": [
+    {
+      "inputs": [
+        {"internalType": "address", "name": "asset", "type": "address"},
+        {"internalType": "address", "name": "user", "type": "address"}
+      ],
+      "name": "getUserReserveData",
+      "outputs": [
+        {"internalType": "uint256", "name": "currentBTokenBalance", "type": "uint256"},
+        {"internalType": "uint256", "name": "currentStableDebt", "type": "uint256"},
+        {"internalType": "uint256", "name": "currentVariableDebt", "type": "uint256"},
+        {"internalType": "uint256", "name": "principalStableDebt", "type": "uint256"},
+        {"internalType": "uint256", "name": "scaledVariableDebt", "type": "uint256"},
+        {"internalType": "uint256", "name": "stableBorrowRate", "type": "uint256"},
+        {"internalType": "uint256", "name": "liquidityRate", "type": "uint256"},
+        {"internalType": "uint40", "name": "stableRateLastUpdated", "type": "uint40"},
+        {"internalType": "bool", "name": "usageAsCollateralEnabled", "type": "bool"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "CONTROLLER_ABI": [
+    {
+      "inputs": [{"internalType": "bytes32", "name": "commitment", "type": "bytes32"}],
+      "name": "commit",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{"internalType": "string", "name": "name", "type": "string"}],
+      "name": "available",
+      "outputs": [{"internalType": "bool", "name": "", "type": "bool"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "string", "name": "name", "type": "string"},
+        {"internalType": "uint256", "name": "duration", "type": "uint256"}
+      ],
+      "name": "rentPrice",
+      "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "string", "name": "name", "type": "string"},
+        {"internalType": "address", "name": "owner", "type": "address"},
+        {"internalType": "uint256", "name": "duration", "type": "uint256"},
+        {"internalType": "bytes32", "name": "secret", "type": "bytes32"},
+        {"internalType": "address", "name": "resolver", "type": "address"},
+        {"internalType": "bytes[]", "name": "data", "type": "bytes[]"},
+        {"internalType": "bool", "name": "reverseRecord", "type": "bool"},
+        {"internalType": "uint16", "name": "ownerControlledFuses", "type": "uint16"}
+      ],
+      "name": "register",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "string", "name": "name", "type": "string"},
+        {"internalType": "address", "name": "owner", "type": "address"},
+        {"internalType": "uint256", "name": "duration", "type": "uint256"},
+        {"internalType": "bytes32", "name": "secret", "type": "bytes32"},
+        {"internalType": "address", "name": "resolver", "type": "address"},
+        {"internalType": "bytes[]", "name": "data", "type": "bytes[]"},
+        {"internalType": "bool", "name": "reverseRecord", "type": "bool"},
+        {"internalType": "uint16", "name": "ownerControlledFuses", "type": "uint16"}
+      ],
+      "name": "makeCommitment",
+      "outputs": [{"internalType": "bytes32", "name": "", "type": "bytes32"}],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "BROKEX_ABI": [
+    {
+      "inputs": [{"internalType": "address", "name": "user", "type": "address"}],
+      "name": "getOpenPositions",
+      "outputs": [
+        {
+          "components": [
+            {"internalType": "uint256", "name": "positionId", "type": "uint256"},
+            {"internalType": "address", "name": "user", "type": "address"},
+            {"internalType": "uint256", "name": "assetIndex", "type": "uint256"},
+            {"internalType": "uint256", "name": "entryPrice", "type": "uint256"},
+            {"internalType": "uint256", "name": "usdSize", "type": "uint256"},
+            {"internalType": "uint256", "name": "leverage", "type": "uint256"},
+            {"internalType": "bool", "name": "isLong", "type": "bool"},
+            {"internalType": "uint256", "name": "timestamp", "type": "uint256"},
+            {"internalType": "uint256", "name": "slPrice", "type": "uint256"},
+            {"internalType": "uint256", "name": "tpPrice", "type": "uint256"},
+            {"internalType": "uint256", "name": "liquidationPrice", "type": "uint256"}
+          ],
+          "internalType": "struct Brokex.OpenPosition[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "uint256", "name": "assetIndex", "type": "uint256"},
+        {"internalType": "bool", "name": "isLong", "type": "bool"},
+        {"internalType": "uint256", "name": "usdSize", "type": "uint256"},
+        {"internalType": "uint256", "name": "leverage", "type": "uint256"},
+        {"internalType": "uint256", "name": "targetPrice", "type": "uint256"},
+        {"internalType": "uint256", "name": "slPrice", "type": "uint256"},
+        {"internalType": "uint256", "name": "tpPrice", "type": "uint256"}
+      ],
+      "name": "placeOrder",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "CLAIM_ABI": [
+    {
+      "inputs": [],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "ONCHAINGM_ABI": [
+    {
+      "inputs": [
+        {"internalType": "address", "name": "user", "type": "address"}
+      ],
+      "name": "lastGMDay",
+      "outputs": [
+        {"internalType": "uint256", "name": "", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "feeRecipient",
+      "outputs": [
+        {"internalType": "address", "name": "", "type": "address"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "GM_FEE",
+      "outputs": [
+        {"internalType": "uint256", "name": "", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "REFERRAL_PERCENT",
+      "outputs": [
+        {"internalType": "uint256", "name": "", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "address", "name": "referrer", "type": "address"}
+      ],
+      "name": "onChainGM",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "onChainGM",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {"internalType": "address", "name": "user", "type": "address"}
+      ],
+      "name": "timeUntilNextGM",
+      "outputs": [
+        {"internalType": "uint256", "name": "", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "referrer",
+          "type": "address"
+        }
+      ],
+      "name": "OnChainGMEvent",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "referrer",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ReferralFailed",
+      "type": "event"
+    }
+  ]
+}
