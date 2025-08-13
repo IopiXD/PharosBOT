@@ -477,5 +477,18 @@
       "name": "ReferralFailed",
       "type": "event"
     }
+  ],
+  "FAUCET_ABI": [
+    {
+      "inputs": [
+        {"internalType": "address", "name": "user", "type": "address"}
+      ],
+      "name": "getNextFaucetClaimTime",
+      "outputs": [
+        {"internalType": "uint256", "name": "", "type": "uint256"}
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
   ]
 }
