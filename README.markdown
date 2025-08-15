@@ -40,6 +40,8 @@ To run PharosBot, ensure you have the following:
   - `pharosname.py`
   - `brokex.py`
   - `gotchipus.py`
+  - `autostaking.py`
+  - `primuslabs.py`
 - **Access Code**: Required to run the bot (see Trial Access section for details).
 
 ## Installation
