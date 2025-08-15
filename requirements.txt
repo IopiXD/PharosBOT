@@ -6,3 +6,4 @@ pytz
 faker
 websocket-client
 supabase
+bs4

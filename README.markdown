@@ -126,6 +126,8 @@ Ensure the `src` directory contains all required bot modules (`daily.py`, `zenit
      [5] Register Domain
      [6] Brokex Ecosystem
      [7] Gotchipus Ecosystem
+     [8] AutoStaking 
+     [9] Primuslabs
      [0] Run All
      ```
    - Enter comma-separated numbers to select ecosystems (e.g., `1,3,5`) or `0` to run all ecosystems.
